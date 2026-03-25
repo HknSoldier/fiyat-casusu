@@ -12,7 +12,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
-    DatabaseModule,
     UsersModule,
     NotificationsModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),

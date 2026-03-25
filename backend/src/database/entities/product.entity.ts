@@ -14,8 +14,6 @@ import { PriceHistory } from './price-history.entity';
 import { StockHistory } from './stock-history.entity';
 import { ProductMatch } from './product-match.entity';
 
-export type Platform = 'trendyol' | 'hepsiburada' | 'n11' | 'amazon';
-
 @Entity('products')
 export class Product {
   @PrimaryGeneratedColumn('uuid')
@@ -50,11 +48,8 @@ export class Product {
   @Column({ type: 'text' })
   url: string;
 
-  @Column({
-    type: 'enum',
-    enum: ['trendyol', 'hepsiburada', 'n11', 'amazon'],
-  })
-  platform: Platform;
+  @Column({ length: 20 })
+  platform: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   currentPrice: number;

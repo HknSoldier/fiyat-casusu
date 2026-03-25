@@ -6,16 +6,12 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   OneToMany,
-  ManyToOne,
-  JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Product } from './product.entity';
 import { AlertRule } from './alert-rule.entity';
 import { ProductMatch } from './product-match.entity';
 import { Competitor } from './competitor.entity';
-
-export type SubscriptionPlan = 'free' | 'pro' | 'enterprise';
 
 @Entity('companies')
 export class Company {
@@ -25,12 +21,8 @@ export class Company {
   @Column({ length: 255 })
   name: string;
 
-  @Column({
-    type: 'enum',
-    enum: ['free', 'pro', 'enterprise'],
-    default: 'free',
-  })
-  subscriptionPlan: SubscriptionPlan;
+  @Column({ default: 'free', length: 20 })
+  subscriptionPlan: string;
 
   @Column({ type: 'timestamp', nullable: true })
   subscriptionExpires: Date;

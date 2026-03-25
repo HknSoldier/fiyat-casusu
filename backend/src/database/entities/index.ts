@@ -1,7 +1,4 @@
 // Export types explicitly to avoid conflicts
-export { SubscriptionPlan } from './company.entity';
-export { UserRole } from './user.entity';
-export { Platform } from './product.entity';
 
 export * from './company.entity';
 export * from './user.entity';

@@ -10,8 +10,6 @@ import {
 } from 'typeorm';
 import { Company } from './company.entity';
 
-export type UserRole = 'admin' | 'user';
-
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -33,12 +31,8 @@ export class User {
   @JoinColumn({ name: 'companyId' })
   company: Company;
 
-  @Column({
-    type: 'enum',
-    enum: ['admin', 'user'],
-    default: 'user',
-  })
-  role: UserRole;
+  @Column({ default: 'user', length: 20 })
+  role: string;
 
   @CreateDateColumn()
   createdAt: Date;

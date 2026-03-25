@@ -26,11 +26,8 @@ export class Competitor {
   @Column({ length: 255 })
   name: string;
 
-  @Column({
-    type: 'enum',
-    enum: ['trendyol', 'hepsiburada', 'n11', 'amazon'],
-  })
-  platform: Platform;
+  @Column({ length: 20 })
+  platform: string;
 
   @Column({ type: 'text' })
   url: string;

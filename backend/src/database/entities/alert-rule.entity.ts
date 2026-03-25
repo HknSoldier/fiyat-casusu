@@ -26,11 +26,8 @@ export class AlertRule {
   @Column({ length: 255 })
   name: string;
 
-  @Column({
-    type: 'enum',
-    enum: ['price_drop', 'price_increase', 'stock_out', 'stock_low', 'competitor_add', 'competitor_remove'],
-  })
-  type: AlertType;
+  @Column({ length: 50 })
+  type: string;
 
   @Column({ type: 'jsonb' })
   condition: Record<string, any>;
