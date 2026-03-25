@@ -32,15 +32,16 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, user, logout, setDemoMode } = useAuthStore();
+  const { isAuthenticated, user, logout } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      // For demo purposes, auto-enable demo mode
+      // Auto-login for demo mode
+      const { setDemoMode } = useAuthStore.getState();
       setDemoMode();
     }
-  }, [isAuthenticated, setDemoMode]);
+  }, [isAuthenticated]);
 
   if (!isAuthenticated) {
     return null;
