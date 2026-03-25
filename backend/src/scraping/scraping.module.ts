@@ -15,41 +15,14 @@ import { ProductsModule } from '../products/products.module';
     ScheduleModule.forRoot(),
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
-        // Support REDIS_URL from Render or custom REDIS_HOST/REDIS_PORT
-        const redisUrl = process.env.REDIS_URL || configService.get('REDIS_URL');
-        
-        if (redisUrl) {
-          // Use REDIS_URL directly
-          return {
-            connection: {
-              url: redisUrl,
-            },
-          };
-        }
-        
-        // Fallback to individual REDIS_HOST/REDIS_PORT (or disable Redis)
-        const redisHost = configService.get('REDIS_HOST');
-        if (!redisHost) {
-          // Redis not configured - return dummy connection to prevent crash
-          return {
-            connection: {
-              host: 'localhost',
-              port: 6379,
-              enableReadyCheck: false,
-              maxRetriesPerRequest: 1,
-            },
-          };
-        }
-        
-        return {
-          connection: {
-            host: redisHost,
-            port: parseInt(configService.get('REDIS_PORT') || '6379'),
-          },
-        };
-      },
-      inject: [ConfigService],
+      useFactory: async () => ({
+        connection: {
+          url: process.env.REDIS_URL,
+          tls: { rejectUnauthorized: false },
+          retryStrategy: (times) => Math.min(times * 50, 2000),
+          maxRetriesPerRequest: 3,
+        },
+      }),
     }),
     BullModule.registerQueue({ name: 'scraping' }),
     ProductsModule,
