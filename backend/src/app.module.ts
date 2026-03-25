@@ -21,22 +21,20 @@ import { NotificationsModule } from './notifications/notifications.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        // Support both DATABASE_URL (Render) and individual DB_* vars
+        const isProduction = configService.get('NODE_ENV') === 'production';
         const databaseUrl = configService.get('DATABASE_URL');
         
         if (databaseUrl) {
-          // Parse DATABASE_URL from Render: postgres://user:pass@host:port/database
           return {
             type: 'postgres',
             url: databaseUrl,
             ssl: { rejectUnauthorized: false },
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: configService.get('NODE_ENV') !== 'production',
-            logging: configService.get('NODE_ENV') === 'development',
+            synchronize: false, // Always false in production
+            logging: !isProduction,
           };
         }
         
-        // Fallback to individual environment variables
         return {
           type: 'postgres',
           host: configService.get('DB_HOST') || 'localhost',

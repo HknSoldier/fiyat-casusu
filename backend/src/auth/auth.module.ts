@@ -29,4 +29,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
   providers: [AuthService, JwtStrategy, LocalStrategy],
   exports: [AuthService, JwtModule],
 })
-export class AuthModule {}
+export class AuthModule {
+  constructor() {
+    console.log('[AuthModule] Initialized');
+  }
+}
