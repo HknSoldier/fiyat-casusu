@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
@@ -23,6 +23,9 @@ import { NotificationsModule } from './notifications/notifications.module';
       useFactory: (configService: ConfigService) => {
         const isProduction = configService.get('NODE_ENV') === 'production';
         const databaseUrl = configService.get('DATABASE_URL');
+        
+        console.log('[AppModule] DATABASE_URL:', databaseUrl ? 'SET' : 'NOT SET');
+        console.log('[AppModule] NODE_ENV:', isProduction ? 'production' : 'other');
         
         if (databaseUrl) {
           return {
