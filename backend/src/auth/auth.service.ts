@@ -47,7 +47,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
-        status: user.status,
+        status: user.status as string,
       },
     };
   }
@@ -70,7 +70,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
-        status: user.status,
+        status: user.status as string,
       },
       token,
     };

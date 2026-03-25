@@ -52,12 +52,8 @@ export class User {
   @Column({ nullable: true })
   emailVerificationToken: string;
 
-  @Column({
-    type: 'enum',
-    enum: ['pending', 'active', 'suspended'],
-    default: 'pending',
-  })
-  status: 'pending' | 'active' | 'suspended';
+  @Column({ default: 'pending', length: 20 })
+  status: string;
 
   @DeleteDateColumn()
   deletedAt: Date;
