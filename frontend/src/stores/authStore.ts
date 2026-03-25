@@ -33,7 +33,7 @@ interface RegisterData {
   companyName?: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fiyat-casusu.onrender.com/api';
 
 export const useAuthStore = create<AuthState>()(
   persist(

@@ -31,8 +31,13 @@ export class AuthService {
       status: 'pending',
     });
 
-    // Send verification email
-    await this.emailService.sendVerificationEmail(user.email, emailVerificationToken);
+    // Send verification email (non-blocking)
+    try {
+      await this.emailService.sendVerificationEmail(user.email, emailVerificationToken);
+    } catch (emailError) {
+      // Log but don't fail registration
+      console.log('Verification email could not be sent:', emailError);
+    }
 
     return {
       message: 'Registration successful. Please check your email to verify your account.',
