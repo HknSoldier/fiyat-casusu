@@ -15,12 +15,24 @@ import { ProductsModule } from '../products/products.module';
     ScheduleModule.forRoot(),
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        connection: {
-          host: configService.get('REDIS_HOST') || 'localhost',
-          port: parseInt(configService.get('REDIS_PORT') || '6379'),
-        },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const redisUrl = configService.get('REDIS_URL');
+        
+        if (redisUrl) {
+          // Parse REDIS_URL: redis://user:pass@host:port
+          return {
+            connection: redisUrl,
+          };
+        }
+        
+        // Fallback to individual REDIS_HOST/REDIS_PORT
+        return {
+          connection: {
+            host: configService.get('REDIS_HOST') || 'localhost',
+            port: parseInt(configService.get('REDIS_PORT') || '6379'),
+          },
+        };
+      },
       inject: [ConfigService],
     }),
     BullModule.registerQueue({ name: 'scraping' }),
