@@ -13,18 +13,20 @@ import { ProductsModule } from '../products/products.module';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async () => ({
-        connection: {
-          url: process.env.REDIS_URL,
-          tls: { rejectUnauthorized: false },
-          retryStrategy: (times) => Math.min(times * 50, 2000),
-          maxRetriesPerRequest: 3,
-        },
+    ...(process.env.REDIS_URL ? [
+      BullModule.forRootAsync({
+        imports: [ConfigModule],
+        useFactory: async () => ({
+          connection: {
+            url: process.env.REDIS_URL,
+            tls: { rejectUnauthorized: false },
+            retryStrategy: (times) => Math.min(times * 50, 2000),
+            maxRetriesPerRequest: 3,
+          },
+        }),
       }),
-    }),
-    BullModule.registerQueue({ name: 'scraping' }),
+      BullModule.registerQueue({ name: 'scraping' }),
+    ] : []),
     ProductsModule,
   ],
   controllers: [ScrapingController],
