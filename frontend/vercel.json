@@ -1,10 +1,6 @@
 {
   "version": 2,
-  "name": "fiyat-casusu-frontend",
-  "builds": [
-    { "src": "package.json", "use": "@vercel/next" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs"
 }
