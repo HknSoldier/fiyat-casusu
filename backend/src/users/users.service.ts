@@ -35,6 +35,8 @@ export class UsersService {
       companyId: company?.id,
       role: 'user',
       emailVerified: false,
+      status: createUserDto.status || 'pending',
+      emailVerificationToken: createUserDto.emailVerificationToken,
     });
 
     return this.usersRepository.save(user);
@@ -77,6 +79,10 @@ export class UsersService {
     
     Object.assign(user, updateData);
     return this.usersRepository.save(user);
+  }
+
+  async findByVerificationToken(token: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { emailVerificationToken: token } });
   }
 
   async delete(id: string): Promise<void> {

@@ -179,4 +179,53 @@ Fiyat Casusu - KOBİ E-Ticaret Fiyat İzleme Platformu
       return false;
     }
   }
+
+  /**
+   * Send email verification email
+   */
+  async sendVerificationEmail(to: string, token: string): Promise<boolean> {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const verificationUrl = `${frontendUrl}/verify?token=${token}`;
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .button { display: inline-block; background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+          .code-box { background: white; border: 2px dashed #667eea; padding: 20px; text-align: center; font-family: monospace; font-size: 18px; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>📧 Email Doğrulama</h1>
+          </div>
+          <div class="content">
+            <p>Merhaba,</p>
+            <p>Fiyat Casusu hesabınızı aktifleştirmek için aşağıdaki butona tıklayın:</p>
+            <a href="${verificationUrl}" class="button">Hesabımı Aktifleştir</a>
+            <p>Veya bu linki tarayıcınızda açın:</p>
+            <div class="code-box">${verificationUrl}</div>
+            <p>Bu link 24 saat geçerlidir.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const textContent = `Email doğrulama için: ${verificationUrl}`;
+
+    if (!this.isEnabled) {
+      this.logger.log(`[DEV EMAIL] Verification email to ${to}, URL: ${verificationUrl}`);
+      return true;
+    }
+
+    return this.sendViaBrevo(to, '📧 Fiyat Casusu - Email Doğrulama', htmlContent, textContent);
+  }
 }

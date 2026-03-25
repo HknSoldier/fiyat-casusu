@@ -4,4 +4,6 @@ export class CreateUserDto {
   passwordHash?: string;
   name: string;
   companyName?: string;
+  status?: 'pending' | 'active' | 'suspended';
+  emailVerificationToken?: string;
 }
