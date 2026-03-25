@@ -36,12 +36,8 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      // Auto-login for demo mode
-      const { setDemoMode } = useAuthStore.getState();
-      setDemoMode();
-    }
-  }, [isAuthenticated]);
+    // Auto-login for demo mode
+  }, []);
 
   if (!isAuthenticated) {
     return null;
