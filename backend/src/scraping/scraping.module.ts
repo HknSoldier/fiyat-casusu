@@ -16,19 +16,35 @@ import { ProductsModule } from '../products/products.module';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const redisUrl = configService.get('REDIS_URL');
+        // Support REDIS_URL from Render or custom REDIS_HOST/REDIS_PORT
+        const redisUrl = process.env.REDIS_URL || configService.get('REDIS_URL');
         
         if (redisUrl) {
-          // Parse REDIS_URL: redis://user:pass@host:port
+          // Use REDIS_URL directly
           return {
-            connection: redisUrl,
+            connection: {
+              url: redisUrl,
+            },
           };
         }
         
-        // Fallback to individual REDIS_HOST/REDIS_PORT
+        // Fallback to individual REDIS_HOST/REDIS_PORT (or disable Redis)
+        const redisHost = configService.get('REDIS_HOST');
+        if (!redisHost) {
+          // Redis not configured - return dummy connection to prevent crash
+          return {
+            connection: {
+              host: 'localhost',
+              port: 6379,
+              enableReadyCheck: false,
+              maxRetriesPerRequest: 1,
+            },
+          };
+        }
+        
         return {
           connection: {
-            host: configService.get('REDIS_HOST') || 'localhost',
+            host: redisHost,
             port: parseInt(configService.get('REDIS_PORT') || '6379'),
           },
         };
