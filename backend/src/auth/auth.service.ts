@@ -41,6 +41,7 @@ export class AuthService {
 
     return {
       message: 'Registration successful. Please check your email to verify your account.',
+      token: this.generateToken(user),
       user: {
         id: user.id,
         email: user.email,
