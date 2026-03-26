@@ -41,7 +41,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
-        status: user.status as string,
+        status: 'active', // Return active since we auto-activate on registration
       },
     };
   }
