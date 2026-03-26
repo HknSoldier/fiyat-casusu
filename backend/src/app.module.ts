@@ -22,6 +22,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const isProduction = configService.get('NODE_ENV') === 'production';
         
@@ -33,13 +34,14 @@ import { NotificationsModule } from './notifications/notifications.module';
         
         // Use DATABASE_URL if available, otherwise use individual DB_* variables
         if (databaseUrl) {
+          console.log('[AppModule] Using DATABASE_URL');
           return {
             type: 'postgres',
             url: databaseUrl,
             ssl: { rejectUnauthorized: false },
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: false,
-            logging: !isProduction,
+            synchronize: true, // Enable for initial setup
+            logging: true,
           };
         }
         
