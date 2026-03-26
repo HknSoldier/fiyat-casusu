@@ -46,4 +46,9 @@ export class AuthController {
   async getProfile(@Request() req: any) {
     return req.user;
   }
+
+  @Get('test')
+  test() {
+    return { message: 'Auth endpoint working', timestamp: new Date().toISOString() };
+  }
 }

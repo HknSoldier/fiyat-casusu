@@ -21,8 +21,12 @@ export class EmailService {
   private isEnabled: boolean = false;
 
   constructor(private configService: ConfigService) {
+    console.log('[EmailService] Initializing...');
     this.apiKey = this.configService.get<string>('BREVO_API_KEY');
     this.fromEmail = this.configService.get<string>('BREVO_FROM_EMAIL', 'noreply@fiyatcasusu.com');
+    
+    console.log('[EmailService] API Key:', this.apiKey ? 'set' : 'not set');
+    console.log('[EmailService] From Email:', this.fromEmail);
     
     if (this.apiKey) {
       this.isEnabled = true;
