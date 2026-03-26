@@ -27,6 +27,12 @@ async function bootstrap() {
       allowedHeaders: ['Content-Type', 'Authorization'],
     });
 
+    // Global exception filter for better error logging
+    app.use((err: any, req: any, res: any, next: any) => {
+      console.error('[Global Error]', err.stack || err.message || err);
+      next(err);
+    });
+
     const port = process.env.PORT || 4000;
     await app.listen(port);
     logger.log(`🚀 Fiyat Casusu API running on port ${port}`);
