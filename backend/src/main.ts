@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -27,11 +28,8 @@ async function bootstrap() {
       allowedHeaders: ['Content-Type', 'Authorization'],
     });
 
-    // Global exception filter for better error logging
-    app.use((err: any, req: any, res: any, next: any) => {
-      console.error('[Global Error]', err.stack || err.message || err);
-      next(err);
-    });
+    // Apply global exception filter
+    app.useGlobalFilters(new AllExceptionsFilter());
 
     const port = process.env.PORT || 4000;
     await app.listen(port);
