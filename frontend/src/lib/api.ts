@@ -56,22 +56,22 @@ class ApiClient {
 
   // Auth
   async login(email: string, password: string) {
-    const data = await this.fetch<{ access_token: string; user: any }>('/auth/login', {
+    const data = await this.fetch<{ token: string; user: any }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
       skipAuth: true,
     });
-    this.setToken(data.access_token);
+    this.setToken(data.token);
     return data;
   }
 
-  async register(email: string, password: string, companyName: string) {
-    const data = await this.fetch<{ access_token: string; user: any }>('/auth/register', {
+  async register(email: string, password: string, name: string, companyName?: string) {
+    const data = await this.fetch<{ token: string; user: any; message: string }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, companyName }),
+      body: JSON.stringify({ email, password, name, companyName }),
       skipAuth: true,
     });
-    this.setToken(data.access_token);
+    this.setToken(data.token);
     return data;
   }
 
