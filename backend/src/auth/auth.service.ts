@@ -28,37 +28,20 @@ export class AuthService {
       ...createUserDto,
       passwordHash,
       emailVerificationToken,
-      status: 'pending',
+      status: 'active', // Auto-active for now, enable email verification later
     });
 
-    // Send verification email (don't fail registration if email fails)
-    try {
-      await this.emailService.sendVerificationEmail(user.email, emailVerificationToken);
-    } catch (emailError) {
-      console.log('Verification email could not be sent:', emailError.message);
-    }
-    
-    // Auto-verify for testing (remove in production)
-    let updatedUser = user;
-    try {
-      updatedUser = await this.usersService.update(user.id, { status: 'active', emailVerified: true });
-      updatedUser.status = 'active';
-      updatedUser.emailVerified = true;
-    } catch (updateError) {
-      console.log('Auto-verify failed:', updateError.message);
-    }
-    
-    const token = this.generateToken(updatedUser);
+    const token = this.generateToken(user);
 
     return {
-      message: 'Registration successful. Please check your email to verify your account.',
+      message: 'Registration successful.',
       token: token,
       user: {
-        id: updatedUser.id,
-        email: updatedUser.email,
-        name: updatedUser.name,
-        role: updatedUser.role,
-        status: updatedUser.status as string,
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        status: user.status as string,
       },
     };
   }
@@ -69,11 +52,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Check if user is active
-    if (user.status !== 'active') {
-      throw new UnauthorizedException('Please verify your email to activate your account');
-    }
-
+    // Allow all logins for now (email verification can be enabled later)
     const token = this.generateToken(user);
     return {
       user: {
