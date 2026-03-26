@@ -188,6 +188,9 @@ Fiyat Casusu - KOBİ E-Ticaret Fiyat İzleme Platformu
    * Send email verification email
    */
   async sendVerificationEmail(to: string, token: string): Promise<boolean> {
+    console.log('[EmailService] sendVerificationEmail called for:', to);
+    console.log('[EmailService] isEnabled:', this.isEnabled);
+    
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const verificationUrl = `${frontendUrl}/verify?token=${token}`;
 
@@ -225,11 +228,16 @@ Fiyat Casusu - KOBİ E-Ticaret Fiyat İzleme Platformu
 
     const textContent = `Email doğrulama için: ${verificationUrl}`;
 
-    if (!this.isEnabled) {
-      this.logger.log(`[DEV EMAIL] Verification email to ${to}, URL: ${verificationUrl}`);
-      return true;
-    }
+    try {
+      if (!this.isEnabled) {
+        this.logger.log(`[DEV EMAIL] Verification email to ${to}, URL: ${verificationUrl}`);
+        return true;
+      }
 
-    return this.sendViaBrevo(to, '📧 Fiyat Casusu - Email Doğrulama', htmlContent, textContent);
+      return this.sendViaBrevo(to, '📧 Fiyat Casusu - Email Doğrulama', htmlContent, textContent);
+    } catch (error) {
+      this.logger.error('Error in sendVerificationEmail:', error);
+      return true; // Don't fail registration
+    }
   }
 }

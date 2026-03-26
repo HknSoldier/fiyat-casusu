@@ -41,10 +41,12 @@ export class AuthService {
 
     // Send verification email (non-blocking)
     try {
+      console.log('[AuthService] Sending verification email...');
       await this.emailService.sendVerificationEmail(user.email, emailVerificationToken);
+      console.log('[AuthService] Verification email sent');
     } catch (emailError) {
       // Log but don't fail registration
-      console.log('Verification email could not be sent:', emailError);
+      console.log('[AuthService] Verification email could not be sent:', emailError.message);
     }
 
     return {
