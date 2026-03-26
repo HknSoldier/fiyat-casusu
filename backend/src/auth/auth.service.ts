@@ -16,20 +16,28 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto) {
+    console.log('[AuthService] register called with:', createUserDto.email);
+    
     const existingUser = await this.usersService.findByEmail(createUserDto.email);
+    console.log('[AuthService] existingUser:', existingUser ? 'found' : 'not found');
+    
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
 
     const passwordHash = await bcrypt.hash(createUserDto.password, 10);
+    console.log('[AuthService] password hashed');
+    
     const emailVerificationToken = randomBytes(32).toString('hex');
     
+    console.log('[AuthService] creating user...');
     const user = await this.usersService.create({
       ...createUserDto,
       passwordHash,
       emailVerificationToken,
       status: 'pending',
     });
+    console.log('[AuthService] user created, id:', user.id);
 
     // Send verification email (non-blocking)
     try {

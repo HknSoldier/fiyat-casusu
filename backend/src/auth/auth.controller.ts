@@ -14,11 +14,13 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto) {
     this.logger.log(`Register attempt for: ${registerDto.email}`);
     try {
+      this.logger.log('Calling authService.register...');
       const result = await this.authService.register(registerDto);
       this.logger.log(`Registration successful for: ${registerDto.email}`);
       return result;
     } catch (error) {
       this.logger.error(`Registration failed: ${error.message}`, error.stack);
+      // Re-throw to let NestJS handle the error properly
       throw error;
     }
   }
