@@ -16,49 +16,33 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto) {
-    console.log('[AuthService] register called with:', createUserDto.email);
-    console.log('[AuthService] DTO:', JSON.stringify(createUserDto));
-    
     const existingUser = await this.usersService.findByEmail(createUserDto.email);
-    console.log('[AuthService] existingUser:', existingUser ? 'found' : 'not found');
-    
     if (existingUser) {
-      console.log('[AuthService] Email already exists, throwing error');
       throw new ConflictException('Email already exists');
     }
 
-    console.log('[AuthService] Hashing password...');
     const passwordHash = await bcrypt.hash(createUserDto.password, 10);
-    console.log('[AuthService] password hashed');
-    
     const emailVerificationToken = randomBytes(32).toString('hex');
-    console.log('[AuthService] Token generated');
     
-    console.log('[AuthService] Calling usersService.create...');
     const user = await this.usersService.create({
       ...createUserDto,
       passwordHash,
       emailVerificationToken,
       status: 'pending',
     });
-    console.log('[AuthService] user created, id:', user.id);
 
-    // Send verification email (non-blocking) - skip for now to test
-    // try {
-    //   console.log('[AuthService] Sending verification email...');
-    //   await this.emailService.sendVerificationEmail(user.email, emailVerificationToken);
-    //   console.log('[AuthService] Verification email sent');
-    // } catch (emailError) {
-    //   console.log('[AuthService] Verification email could not be sent:', emailError.message);
-    // }
+    // Send verification email (don't fail registration if email fails)
+    try {
+      await this.emailService.sendVerificationEmail(user.email, emailVerificationToken);
+    } catch (emailError) {
+      console.log('Verification email could not be sent:', emailError.message);
+    }
     
-    console.log('[AuthService] Skipping email for debugging');
-
-    console.log('[AuthService] Generating token...');
+    // TEMP: Auto-verify for testing (remove in production)
+    await this.usersService.update(user.id, { status: 'active', emailVerified: true });
+    
     const token = this.generateToken(user);
-    console.log('[AuthService] Token generated');
 
-    console.log('[AuthService] Returning response...');
     return {
       message: 'Registration successful. Please check your email to verify your account.',
       token: token,

@@ -16,29 +16,18 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: Partial<CreateUserDto> & { passwordHash?: string }): Promise<User> {
-    console.log('[UsersService] create called');
-    console.log('[UsersService] companyName:', createUserDto.companyName);
-    
     let company: Company | null = null;
     
     if (createUserDto.companyName) {
-      console.log('[UsersService] Creating company...');
-      try {
-        company = this.companiesRepository.create({
-          name: createUserDto.companyName,
-          subscriptionPlan: 'free',
-          apiLimit: 10,
-          scrapingInterval: 1440,
-        });
-        company = await this.companiesRepository.save(company);
-        console.log('[UsersService] Company created:', company.id);
-      } catch (companyError) {
-        console.log('[UsersService] Company creation failed:', companyError.message);
-        // Continue without company
-      }
+      company = this.companiesRepository.create({
+        name: createUserDto.companyName,
+        subscriptionPlan: 'free',
+        apiLimit: 10,
+        scrapingInterval: 1440,
+      });
+      company = await this.companiesRepository.save(company);
     }
 
-    console.log('[UsersService] Creating user...');
     const user = this.usersRepository.create({
       email: createUserDto.email,
       passwordHash: createUserDto.passwordHash,
@@ -49,12 +38,8 @@ export class UsersService {
       status: createUserDto.status || 'pending',
       emailVerificationToken: createUserDto.emailVerificationToken,
     });
-    console.log('[UsersService] User entity created');
 
-    const savedUser = await this.usersRepository.save(user);
-    console.log('[UsersService] User saved:', savedUser.id);
-    
-    return savedUser;
+    return this.usersRepository.save(user);
   }
 
   async findByEmail(email: string): Promise<User | null> {

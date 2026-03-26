@@ -29,19 +29,15 @@ import { NotificationsModule } from './notifications/notifications.module';
         // Check for DATABASE_URL from Render/Supabase
         const databaseUrl = process.env.DATABASE_URL;
         
-        console.log('[AppModule] DATABASE_URL:', databaseUrl ? 'SET' : 'NOT SET');
-        console.log('[AppModule] NODE_ENV:', isProduction ? 'production' : 'other');
-        
         // Use DATABASE_URL if available, otherwise use individual DB_* variables
         if (databaseUrl) {
-          console.log('[AppModule] Using DATABASE_URL');
           return {
             type: 'postgres',
             url: databaseUrl,
             ssl: { rejectUnauthorized: false },
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: true, // Enable for initial setup
-            logging: true,
+            synchronize: false,
+            logging: false,
           };
         }
         
@@ -51,8 +47,6 @@ import { NotificationsModule } from './notifications/notifications.module';
         const dbUser = process.env.DB_USERNAME || 'postgres';
         const dbPass = process.env.DB_PASSWORD || 'postgres';
         const dbName = process.env.DB_NAME || 'fiyatcasus';
-        
-        console.log(`[AppModule] Connecting to: ${dbHost}:${dbPort}/${dbName}`);
         
         return {
           type: 'postgres',
