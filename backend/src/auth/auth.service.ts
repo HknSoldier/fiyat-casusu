@@ -38,22 +38,27 @@ export class AuthService {
       console.log('Verification email could not be sent:', emailError.message);
     }
     
-    // TEMP: Auto-verify for testing (remove in production)
-    await this.usersService.update(user.id, { status: 'active', emailVerified: true });
-    user.status = 'active';
-    user.emailVerified = true;
+    // Auto-verify for testing (remove in production)
+    let updatedUser = user;
+    try {
+      updatedUser = await this.usersService.update(user.id, { status: 'active', emailVerified: true });
+      updatedUser.status = 'active';
+      updatedUser.emailVerified = true;
+    } catch (updateError) {
+      console.log('Auto-verify failed:', updateError.message);
+    }
     
-    const token = this.generateToken(user);
+    const token = this.generateToken(updatedUser);
 
     return {
       message: 'Registration successful. Please check your email to verify your account.',
       token: token,
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        status: user.status as string,
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        role: updatedUser.role,
+        status: updatedUser.status as string,
       },
     };
   }
