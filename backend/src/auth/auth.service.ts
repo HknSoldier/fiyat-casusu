@@ -40,6 +40,8 @@ export class AuthService {
     
     // TEMP: Auto-verify for testing (remove in production)
     await this.usersService.update(user.id, { status: 'active', emailVerified: true });
+    user.status = 'active';
+    user.emailVerified = true;
     
     const token = this.generateToken(user);
 
