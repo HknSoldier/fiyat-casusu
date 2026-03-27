@@ -36,7 +36,7 @@ import { NotificationsModule } from './notifications/notifications.module';
             url: databaseUrl,
             ssl: { rejectUnauthorized: false },
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: false,
+            synchronize: true,
             logging: false,
           };
         }

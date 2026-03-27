@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fiyat-casusu.onrender.com/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fiyat-casusu-production.up.railway.app/api';
 
 interface FetchOptions extends RequestInit {
   skipAuth?: boolean;
