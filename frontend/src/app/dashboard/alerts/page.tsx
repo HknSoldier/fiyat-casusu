@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, Search, Bell, ArrowUp, ArrowDown, AlertTriangle, CheckCircle, Trash2, MoreVertical, Mail } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Plus, Search, Bell, ArrowUp, ArrowDown, AlertTriangle, CheckCircle, Trash2, MoreVertical, Mail, Edit } from 'lucide-react';
 
 interface AlertRule {
   id: string;
@@ -23,71 +23,70 @@ interface Alert {
   createdAt: string;
 }
 
-const mockAlertRules: AlertRule[] = [
-  {
-    id: '1',
-    name: 'Fiyat Düşüşü',
-    type: 'price_drop',
-    condition: 'Fiyat %10 altına düştüğünde',
-    isActive: true,
-    notificationChannels: ['email'],
-    createdAt: '2024-01-10',
-  },
-  {
-    id: '2',
-    name: 'Stok Tükenmesi',
-    type: 'stock_out',
-    condition: 'Stok 0 olduğunda',
-    isActive: true,
-    notificationChannels: ['email', 'push'],
-    createdAt: '2024-01-12',
-  },
-  {
-    id: '3',
-    name: 'Fiyat Artışı',
-    type: 'price_increase',
-    condition: 'Fiyat %15 üstüne çıktığında',
-    isActive: false,
-    notificationChannels: ['email'],
-    createdAt: '2024-01-14',
-  },
-];
-
-const mockAlerts: Alert[] = [
-  {
-    id: '1',
-    ruleName: 'Fiyat Düşüşü',
-    productName: 'Samsung Galaxy S24',
-    message: 'Fiyat 45.999 TL\'ye düştü (önceki: 49.999 TL)',
-    type: 'price_drop',
-    isRead: false,
-    createdAt: '2 saat önce',
-  },
-  {
-    id: '2',
-    ruleName: 'Stok Tükenmesi',
-    productName: 'iPhone 15 Pro',
-    message: 'Stok tükendi',
-    type: 'stock_out',
-    isRead: false,
-    createdAt: '5 saat önce',
-  },
-  {
-    id: '3',
-    ruleName: 'Fiyat Artışı',
-    productName: 'MacBook Air M3',
-    message: 'Fiyat 64.999 TL\'ye yükseldi',
-    type: 'price_increase',
-    isRead: true,
-    createdAt: '1 gün önce',
-  },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fiyat-casusu-production.up.railway.app/api';
 
 export default function AlertsPage() {
-  const [alertRules, setAlertRules] = useState<AlertRule[]>(mockAlertRules);
-  const [alerts, setAlerts] = useState<Alert[]>(mockAlerts);
-  const [activeTab, setActiveTab] = useState<'alerts' | 'rules'>('alerts');
+  const [alertRules, setAlertRules] = useState<AlertRule[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'alerts' | 'rules'>('rules');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [editRule, setEditRule] = useState<AlertRule | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchAlertRules();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const fetchAlertRules = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/alerts/rules`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Kurallar alınamadı');
+      const data = await res.json();
+      setAlertRules(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteRule = async (id: string) => {
+    if (!confirm('Bu kuralı silmek istediğinize emin misiniz?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/alerts/rules/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Kural silinemedi');
+      setAlertRules(alertRules.filter(r => r.id !== id));
+      setOpenMenuId(null);
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const handleEditRule = (rule: AlertRule) => {
+    setEditRule(rule);
+    setOpenMenuId(null);
+    setShowAddModal(true);
+  };
 
   const unreadCount = alerts.filter(a => !a.isRead).length;
 
@@ -100,12 +99,6 @@ export default function AlertsPage() {
     }
   };
 
-  const markAsRead = (id: string) => {
-    setAlerts(alerts.map(alert => 
-      alert.id === id ? { ...alert, isRead: true } : alert
-    ));
-  };
-
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -114,7 +107,7 @@ export default function AlertsPage() {
           <p className="text-gray-600">Alert kurallarınızı ve bildirimlerinizi yönetin</p>
         </div>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => { setEditRule(null); setShowAddModal(true); }}
           className="mt-4 md:mt-0 btn-primary flex items-center"
         >
           <Plus className="w-5 h-5 mr-2" />
@@ -152,87 +145,84 @@ export default function AlertsPage() {
 
       {activeTab === 'alerts' ? (
         <div className="card">
-          <div className="divide-y">
-            {alerts.map((alert) => (
-              <div
-                key={alert.id}
-                className={`flex items-start p-4 ${!alert.isRead ? 'bg-blue-50' : ''}`}
-              >
-                <div className="flex-shrink-0 mt-1">
-                  {getAlertIcon(alert.type)}
-                </div>
-                <div className="ml-4 flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium">{alert.ruleName}</p>
-                    <span className="text-xs text-gray-500">{alert.createdAt}</span>
-                  </div>
-                  <p className="text-sm font-semibold">{alert.productName}</p>
-                  <p className="text-sm text-gray-600">{alert.message}</p>
-                </div>
-                {!alert.isRead && (
-                  <button
-                    onClick={() => markAsRead(alert.id)}
-                    className="ml-4 text-primary hover:text-primary-dark"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-            ))}
-            {alerts.length === 0 && (
-              <div className="text-center py-12">
-                <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">Henüz alert yok</p>
-              </div>
-            )}
+          <div className="text-center py-12 text-gray-500">
+            <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p>Henüz bildirim yok</p>
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
-          {alertRules.map((rule) => (
-            <div key={rule.id} className="card">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <h3 className="font-semibold">{rule.name}</h3>
-                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                      rule.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {rule.isActive ? 'Aktif' : 'Pasif'}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1">{rule.condition}</p>
-                  <div className="flex items-center gap-4 mt-3">
-                    <div className="flex items-center text-xs text-gray-500">
-                      <Mail className="w-3 h-3 mr-1" />
-                      {rule.notificationChannels.join(', ')}
+        <div className="space-y-4" ref={menuRef}>
+          {loading ? (
+            <div className="text-center py-12">Yükleniyor...</div>
+          ) : alertRules.length === 0 ? (
+            <div className="text-center py-12">
+              <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">Henüz kural eklenmedi</p>
+            </div>
+          ) : (
+            alertRules.map((rule) => (
+              <div key={rule.id} className="card relative">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold">{rule.name}</h3>
+                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                        rule.isActive 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {rule.isActive ? 'Aktif' : 'Pasif'}
+                      </span>
                     </div>
-                    <span className="text-xs text-gray-500">
-                      Oluşturuldu: {rule.createdAt}
-                    </span>
+                    <p className="text-sm text-gray-600 mt-1">{rule.condition}</p>
+                    <div className="flex items-center gap-4 mt-3">
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Mail className="w-3 h-3 mr-1" />
+                        {rule.notificationChannels?.join(', ') || 'email'}
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        Oluşturuldu: {rule.createdAt ? new Date(rule.createdAt).toLocaleDateString('tr-TR') : '-'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <button className="p-2 text-gray-400 hover:text-primary">
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-                  <button className="p-2 text-gray-400 hover:text-red-600">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="relative">
+                    <button 
+                      onClick={() => setOpenMenuId(openMenuId === rule.id ? null : rule.id)}
+                      className="p-2 text-gray-400 hover:text-gray-600"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                    {openMenuId === rule.id && (
+                      <div className="absolute right-0 top-8 bg-white border rounded shadow-lg py-1 z-10 min-w-[120px]">
+                        <button
+                          onClick={() => handleEditRule(rule)}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+                        >
+                          <Edit className="w-4 h-4" />
+                          Düzenle
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRule(rule.id)}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Sil
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       )}
 
-      {/* Add Rule Modal */}
+      {/* Add/Edit Rule Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h2 className="text-xl font-bold mb-4">Yeni Alert Kuralı</h2>
+            <h2 className="text-xl font-bold mb-4">{editRule ? 'Kuralı Düzenle' : 'Yeni Alert Kuralı'}</h2>
             <form className="space-y-4">
               <div>
                 <label className="label">Kural Adı</label>
@@ -240,11 +230,12 @@ export default function AlertsPage() {
                   type="text"
                   className="input"
                   placeholder="Örn: Fiyat Düşüşü"
+                  defaultValue={editRule?.name}
                 />
               </div>
               <div>
                 <label className="label">Alert Tipi</label>
-                <select className="input">
+                <select className="input" defaultValue={editRule?.type}>
                   <option value="">Tip seçin</option>
                   <option value="price_drop">Fiyat Düşüşü</option>
                   <option value="price_increase">Fiyat Artışı</option>
@@ -258,25 +249,13 @@ export default function AlertsPage() {
                   type="text"
                   className="input"
                   placeholder="Örn: Fiyat %10 altına düştüğünde"
+                  defaultValue={editRule?.condition}
                 />
-              </div>
-              <div>
-                <label className="label">Bildirim Kanalları</label>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" defaultChecked />
-                    <span>E-posta</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>Push Bildirim</span>
-                  </label>
-                </div>
               </div>
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => { setShowAddModal(false); setEditRule(null); }}
                   className="flex-1 btn-secondary"
                 >
                   İptal
@@ -285,7 +264,7 @@ export default function AlertsPage() {
                   type="submit"
                   className="flex-1 btn-primary"
                 >
-                  Oluştur
+                  {editRule ? 'Güncelle' : 'Oluştur'}
                 </button>
               </div>
             </form>
