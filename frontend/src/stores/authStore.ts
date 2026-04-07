@@ -55,7 +55,11 @@ export const useAuthStore = create<AuthState>()(
 
           if (!response.ok) {
             const data = await response.json();
-            throw new Error(data.message || 'Login failed');
+            // Handle different error cases
+            if (data.message === 'Invalid credentials' || data.message === 'Invalid email or password') {
+              throw new Error('E-posta veya şifre hatalı. Lütfen bilgilerinizi kontrol edin.');
+            }
+            throw new Error(data.message || 'Giriş başarısız');
           }
 
           const data = await response.json();
@@ -68,7 +72,7 @@ export const useAuthStore = create<AuthState>()(
           return true;
         } catch (error: any) {
           set({
-            error: error.message || 'Login failed',
+            error: error.message || 'Giriş başarısız',
             isLoading: false,
           });
           return false;
