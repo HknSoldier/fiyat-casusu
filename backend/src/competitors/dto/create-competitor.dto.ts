@@ -12,6 +12,6 @@ export class CreateCompetitorDto {
   logoUrl?: string;
 
   @IsOptional()
-  @IsEnum(['trendyol', 'hepsiburada', 'n11', 'amazon'])
-  platform?: 'trendyol' | 'hepsiburada' | 'n11' | 'amazon';
+  @IsEnum(['trendyol', 'hepsiburada', 'n11', 'amazon', 'custom'])
+  platform?: 'trendyol' | 'hepsiburada' | 'n11' | 'amazon' | 'custom';
 }
