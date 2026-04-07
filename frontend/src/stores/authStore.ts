@@ -87,7 +87,16 @@ export const useAuthStore = create<AuthState>()(
           const data = await response.json();
           
           if (!response.ok) {
-            throw new Error(data.message || 'Registration failed');
+            // If email already exists, show helpful message
+            if (data.message === 'Email already exists') {
+              set({
+                error: 'Bu e-posta adresi zaten kayıtlı. Lütfen giriş yapın veya farklı bir e-posta deneyin.',
+                isLoading: false,
+              });
+            } else {
+              throw new Error(data.message || 'Registration failed');
+            }
+            return false;
           }
 
           set({
