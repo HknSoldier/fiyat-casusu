@@ -81,40 +81,43 @@ export default function SettingsPage() {
       <h1 className="text-2xl font-bold mb-6">Ayarlar</h1>
 
       {/* Profil Bilgileri */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="card mb-6">
         <h2 className="text-lg font-semibold mb-4">Profil Bilgileri</h2>
         <form onSubmit={handleSaveProfile}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">E-posta</label>
+            <label className="label">E-posta</label>
             <input
               type="email"
               value={user?.email || ''}
               disabled
-              className="w-full p-2 border rounded bg-gray-100"
+              className="input opacity-50 cursor-not-allowed"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Ad Soyad</label>
+            <label className="label">Ad Soyad</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="input"
+              placeholder="Adınızı giriniz"
+              required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Şirket Adı</label>
+            <label className="label">Şirket Adı</label>
             <input
               type="text"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="input"
+              placeholder="Şirket adınız"
             />
           </div>
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            className="btn-primary disabled:opacity-50"
           >
             {saving ? 'Kaydediliyor...' : 'Kaydet'}
           </button>
@@ -122,39 +125,42 @@ export default function SettingsPage() {
       </div>
 
       {/* Şifre Değiştirme */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="card">
         <h2 className="text-lg font-semibold mb-4">Şifre Değiştir</h2>
         <form onSubmit={handleChangePassword}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Mevcut Şifre</label>
+            <label className="label">Mevcut Şifre</label>
             <input
               type="password"
               value={passwordData.current}
               onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
-              className="w-full p-2 border rounded"
+              className="input"
+              placeholder="••••••••"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Yeni Şifre</label>
+            <label className="label">Yeni Şifre</label>
             <input
               type="password"
               value={passwordData.new}
               onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
-              className="w-full p-2 border rounded"
+              className="input"
+              placeholder="••••••••"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Yeni Şifre Tekrar</label>
+            <label className="label">Yeni Şifre Tekrar</label>
             <input
               type="password"
               value={passwordData.confirm}
               onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
-              className="w-full p-2 border rounded"
+              className="input"
+              placeholder="••••••••"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+            className="btn-secondary"
           >
             Şifreyi Değiştir
           </button>

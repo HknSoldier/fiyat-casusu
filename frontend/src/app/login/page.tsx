@@ -20,13 +20,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Link href="/" className="text-3xl font-bold text-primary">
             Fiyat Casusu
           </Link>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900">
+          <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
             Hesabınıza Giriş Yapın
           </h2>
         </div>
@@ -34,7 +34,7 @@ export default function LoginPage() {
         <div className="card">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+              <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg">
                 {error}
               </div>
             )}
@@ -72,7 +72,7 @@ export default function LoginPage() {
             <div className="flex items-center justify-between">
               <label className="flex items-center">
                 <input type="checkbox" className="rounded border-gray-300 text-primary focus:ring-primary" />
-                <span className="ml-2 text-sm text-gray-600">Beni hatırla</span>
+                <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Beni hatırla</span>
               </label>
               <Link href="/forgot-password" className="text-sm text-primary hover:underline">
                 Şifremi unuttum

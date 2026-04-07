@@ -48,7 +48,6 @@ export default function CompetitorsPage() {
     setSaving(true);
     try {
       const token = localStorage.getItem('token');
-      const platformValue = newCompetitor.platform === 'custom' ? newCompetitor.customUrl : newCompetitor.platform;
       const res = await fetch(`${API_URL}/competitors`, {
         method: 'POST',
         headers: {
@@ -58,10 +57,13 @@ export default function CompetitorsPage() {
         body: JSON.stringify({
           name: newCompetitor.name,
           url: newCompetitor.url,
-          platform: platformValue,
+          platform: newCompetitor.platform,
         }),
       });
-      if (!res.ok) throw new Error('Rakip eklenemedi');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Rakip eklenemedi');
+      }
       setShowAddModal(false);
       setNewCompetitor({ name: '', url: '', platform: 'trendyol', customUrl: '' });
       fetchCompetitors();

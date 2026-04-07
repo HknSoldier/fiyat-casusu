@@ -30,8 +30,20 @@ export default function RegisterPage() {
     e.preventDefault();
     setValidationError('');
 
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setValidationError('Geçerli bir e-posta adresi giriniz');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setValidationError('Şifreler eşleşmiyor');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setValidationError('Şifre en az 6 karakter olmalıdır');
       return;
     }
 
@@ -53,13 +65,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Link href="/" className="text-3xl font-bold text-primary">
             Fiyat Casusu
           </Link>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900">
+          <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
             Yeni Hesap Oluşturun
           </h2>
         </div>
@@ -67,7 +79,7 @@ export default function RegisterPage() {
         <div className="card">
           <form onSubmit={handleSubmit} className="space-y-4">
             {(error || validationError) && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+              <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg">
                 {error || validationError}
               </div>
             )}
@@ -100,6 +112,8 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 className="input"
                 placeholder="ahmet@company.com"
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                title="Geçerli bir e-posta adresi giriniz"
                 required
               />
             </div>
@@ -161,7 +175,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 className="mt-1 rounded border-gray-300 text-primary focus:ring-primary"
               />
-              <label htmlFor="kvkkConsent" className="ml-2 text-sm text-gray-600">
+              <label htmlFor="kvkkConsent" className="ml-2 text-sm text-gray-600 dark:text-gray-400">
                 <Link href="/legal/kvkk" className="text-primary hover:underline">
                   KVKK aydınlatma metni
                 </Link>
@@ -179,7 +193,7 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <span className="text-gray-600">Zaten hesabınız var mı? </span>
+            <span className="text-gray-600 dark:text-gray-400">Zaten hesabınız var mı? </span>
             <Link href="/login" className="text-primary font-medium hover:underline">
               Giriş Yap
             </Link>

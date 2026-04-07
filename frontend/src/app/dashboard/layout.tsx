@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/authStore';
+import { useThemeStore } from '@/stores/themeStore';
 import { 
   LayoutDashboard, 
   Package, 
@@ -13,7 +14,9 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  Moon,
+  Sun
 } from 'lucide-react';
 
 const navigation = [
@@ -33,6 +36,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user, logout } = useAuthStore();
+  const { isDarkMode, toggleDarkMode } = useThemeStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -49,12 +53,12 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Mobile sidebar */}
       <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-        <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg">
-          <div className="flex items-center justify-between h-16 px-4 border-b">
+        <div className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-lg">
+          <div className="flex items-center justify-between h-16 px-4 border-b dark:border-gray-700">
             <span className="text-xl font-bold text-primary">Fiyat Casusu</span>
             <button onClick={() => setSidebarOpen(false)}>
               <X className="w-6 h-6" />
@@ -70,7 +74,7 @@ export default function DashboardLayout({
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg ${
                     isActive
                       ? 'bg-primary text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -85,11 +89,18 @@ export default function DashboardLayout({
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-1 bg-white shadow-lg">
-          <div className="flex items-center h-16 px-4 border-b">
+        <div className="flex flex-col flex-1 bg-white dark:bg-gray-800 shadow-lg">
+          <div className="flex items-center justify-between h-16 px-4 border-b dark:border-gray-700">
             <Link href="/dashboard" className="text-xl font-bold text-primary">
               Fiyat Casusu
             </Link>
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+              title={isDarkMode ? 'Açık mod' : 'Karanlık mod'}
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
           </div>
           <nav className="flex-1 mt-4 px-2 space-y-1">
             {navigation.map((item) => {
@@ -101,7 +112,7 @@ export default function DashboardLayout({
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg ${
                     isActive
                       ? 'bg-primary text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <item.icon className="w-5 h-5 mr-3" />
@@ -110,19 +121,19 @@ export default function DashboardLayout({
               );
             })}
           </nav>
-          <div className="p-4 border-t">
+          <div className="p-4 border-t dark:border-gray-700">
             <div className="flex items-center mb-4">
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium">{user?.name}</p>
+                <p className="text-sm font-medium dark:text-white">{user?.name}</p>
                 <p className="text-xs text-gray-500">{user?.email}</p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center text-sm text-gray-600 hover:text-red-600"
+              className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-red-600"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Çıkış Yap
@@ -134,12 +145,17 @@ export default function DashboardLayout({
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Mobile header */}
-        <div className="lg:hidden flex items-center justify-between h-16 bg-white shadow-sm px-4">
+        <div className="lg:hidden flex items-center justify-between h-16 bg-white dark:bg-gray-800 shadow-sm px-4">
           <button onClick={() => setSidebarOpen(true)}>
             <Menu className="w-6 h-6" />
           </button>
           <span className="font-bold text-primary">Fiyat Casusu</span>
-          <div className="w-8" />
+          <button
+            onClick={toggleDarkMode}
+            className="p-2 rounded-lg text-gray-500"
+          >
+            {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
         </div>
 
         {/* Page content */}
